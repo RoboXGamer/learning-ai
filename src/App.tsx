@@ -1,5 +1,7 @@
 import { useState } from "react";
 import PropertiesList from "./components/PropertiesList.tsx";
+import SearchSection from "./components/SearchSection.tsx";
+import { Property } from "./components/PropertyDetails.tsx";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const PREFERENCE = {
@@ -10,83 +12,18 @@ const PREFERENCE = {
 
 function App() {
   const [searchInput, setSearchInput] = useState("");
-  const [properties, setProperties] = useState([]);
+  const [properties, setProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit: React.MouseEventHandler<HTMLButtonElement> = async (
-    e
-  ) => {
-    e.preventDefault();
-    const description = searchInput;
-    if (!description) return;
-
-    setIsLoading(true);
-
-    // Send data to parse properties
-    const url = "/api/parse-properties";
-    const formData = { post: description };
-
-    const responseData = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
-
-    if (!responseData.ok) {
-      const errorMessage = await responseData.text();
-      throw new Error(errorMessage);
-    }
-
-    const parsedData = await responseData.json();
-    setProperties(parsedData);
-    setIsLoading(false);
-  };
-
   return (
-    <main className="flex p-4 m-4">
-      <div className="mx-auto justify-center items-center m-10 min-h-screen">
-        <h1 className="sm:text-6xl text-4xl text-slate-900 mb-10 font-bold sans-serif">
-          Search for properties in Seattle
-        </h1>
-
-        <textarea
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          rows={4}
-          className="block p-2.5 w-full text-sm text-gray-900 rounded-lg border 
-            border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-          placeholder="I am looking for a 3 bedroom single family house in Seattle..."
-        />
-
-        {/* Action Buttons */}
-        <div className="flex gap-2 my-10">
-          <button
-            onClick={() =>
-              setSearchInput(
-                "Looking for a 3 bedroom house in Seattle in the starting range of 1000000 to 21000000"
-              )
-            }
-            className="text-white bg-gradient-to-br from-purple-600 to-blue-500 
-              hover:bg-gradient-to-bl focus:ring-4 focus:outline-none 
-              focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg 
-              text-sm px-5 py-3 text-center"
-          >
-            Fill Description
-          </button>
-
-          <button
-            onClick={handleSubmit}
-            className="text-white bg-gradient-to-br from-purple-600 to-blue-500 
-              hover:bg-gradient-to-bl focus:ring-4 focus:outline-none 
-              focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg 
-              text-sm px-5 py-3 text-center"
-          >
-            Search
-          </button>
-        </div>
-
+    <>
+      <SearchSection
+        searchInput={searchInput}
+        setSearchInput={setSearchInput}
+        setProperties={setProperties}
+        setIsLoading={setIsLoading}
+      />
+      <main className="flex p-4 m-4">
         {isLoading ? (
           <div> Loading </div>
         ) : (
@@ -99,8 +36,8 @@ function App() {
             <PropertiesList properties={properties} />
           </section>
         )}
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
 
